@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <script src="https://code.highcharts.com/stock/highstock.js"></script>
+<script src="https://code.highcharts.com/stock/modules/exporting.js"></script>
+<script src="https://code.highcharts.com/stock/modules/export-data.js"></script>
+<script type = "text/javascript" src = "//cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.6/socket.io.min.js" ></script>
+
+
+    <title>voltimetro</title>
+</head>
+<body>
+
+    <div id="container" style="height: 400px; min-width: 310px"></div>
+    <script>
+
+        var socket = io.connect('http://' + document.domain + ':' + location.port);
+        socket.on('connect', function(teste) {
+        socket.emit('menssagem', {status: 'conectado'});
+   });
+
+
+
+
+        // Create the chart
+Highcharts.stockChart('container', {
+    chart: {
+        events: {
+
+            load: function () {
+                 // set up the updating of the chart each second
+                var series = this.series[0];
+                socket.on('menssagem2',function(data) {
+                console.log(data)
+                    //console.log(typeof(data))
+                    document.getElementById('valor').innerHTML = JSON.stringify(data)
+                var x = (new Date()).getTime(), // current time
+                        y = data;
+                    series.addPoint([x, y], true, true);
+            }); // termina o socket
+            }
+        }
+    },
+
+    time: {
+        useUTC: false
+    },
+
+    rangeSelector: {
+        buttons: [{
+            count: 1,
+            type: 'minute',
+            text: '1M'
+        }, {
+            count: 5,
+            type: 'minute',
+            text: '5M'
+        }, {
+            type: 'all',
+            text: 'All'
+        }],
+        inputEnabled: false,
+        selected: 0
+    },
+
+    title: {
+        text: 'Tensão'
+    },
+
+    exporting: {
+        enabled: false
+    },
+
+    series: [{
+        name: 'Random data',
+        data: (function () {
+            // generate an array of random data
+            var data = [],
+                time = (new Date()).getTime(),
+                i;
+
+            for (i = -999; i <= 0; i += 1) {
+                data.push([
+                    time + i * 1000,
+                    data
+
+                    //Math.round(Math.random() * 100)
+                ]);
+            }
+
+            return data;
+        }())
+    }]
+});
+
+
+
+        </script>
+        <div id="valor">
+
+        </div>
+</body>
+</html>
